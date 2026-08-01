@@ -53,3 +53,18 @@ export { GeminiAdapter } from './adapters/ai/GeminiAdapter.js';
 export type { GeminiAdapterConfig } from './adapters/ai/GeminiAdapter.js';
 export { StripeAdapter } from './adapters/payment/StripeAdapter.js';
 export type { StripeAdapterConfig } from './adapters/payment/StripeAdapter.js';
+
+// --- Automated Testing Engine ---
+export { AssertionEngine, AssertionError } from './testing/AssertionEngine.js';
+export { TestSuiteRunner } from './testing/TestSuiteRunner.js';
+export type { TestCaseFn, TestResult, SuiteResult } from './testing/TestSuiteRunner.js';
+export { MockFactory } from './testing/MockFactory.js';
+export type { MockCallRecord, MockedObject } from './testing/MockFactory.js';
+export { TestReporter } from './testing/TestReporter.js';
+export type { BenchmarkResult } from './testing/TestReporter.js';
+
+// --- AI Automation Workflow Engine ---
+export { AIWorkflowEngine } from './ai-automation/AIWorkflowEngine.js';
+export type { WorkflowTool, WorkflowStepResult, WorkflowExecutionSummary } from './ai-automation/AIWorkflowEngine.js';
+export { PromptTemplateEngine } from './ai-automation/PromptTemplateEngine.js';
+export type { SystemPersona } from './ai-automation/PromptTemplateEngine.js';

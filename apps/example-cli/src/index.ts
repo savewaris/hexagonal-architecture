@@ -1,77 +1,73 @@
 import {
-  Container,
-  Schema,
-  Money,
+  TestSuiteRunner,
+  AssertionEngine,
+  MockFactory,
+  TestReporter,
   OpenAIAdapter,
-  GeminiAdapter,
-  StripeAdapter,
-  AIGeneratorPort,
-  PaymentGatewayPort,
-  Logger,
+  AIWorkflowEngine,
+  PromptTemplateEngine,
 } from '@starter/core';
 
-// Define DI Tokens for Ports
-const AI_SERVICE_TOKEN = Symbol('AIGeneratorPort');
-const PAYMENT_GATEWAY_TOKEN = Symbol('PaymentGatewayPort');
-
 async function main() {
-  console.log('🚀 Demonstrating Dependency Injection, Pure Schema & External Adapters...\n');
+  console.log('🚀 Demonstrating Automated Testing Engine & AI Automation Workflow Engine...\n');
 
-  // 1. Validate Environment Config with Pure Schema Engine
-  console.log('--- 1. Pure Zod-like Schema Validation Engine ---');
-  const EnvSchema = Schema.object({
-    openaiApiKey: Schema.string().min(5).default('sk-proj-demo-openai-key'),
-    stripeApiKey: Schema.string().min(5).default('sk_live_demo_stripe_key'),
-    appPort: Schema.number().min(1000).default(4000),
+  // 1. Pure Test Suite Runner & Assertions Demonstration
+  console.log('--- 1. Pure Test Suite Runner & Assertions Engine ---');
+  const runner = new TestSuiteRunner('Core Cryptography & Math Suite');
+
+  runner.it('should verify equal numbers', () => {
+    AssertionEngine.assertEqual(100, 100);
   });
 
-  const env = EnvSchema.parse({
-    openaiApiKey: 'sk-proj-production-key-99',
-    stripeApiKey: 'sk_live_production_stripe_key_88',
-  });
-  console.log(`Validated App Port: ${env.appPort}`);
-  console.log(`Validated OpenAI Key: ${env.openaiApiKey.substring(0, 15)}...`);
-  console.log(`Validated Stripe Key: ${env.stripeApiKey.substring(0, 15)}...\n`);
-
-  // 2. Setup Dependency Injection IoC Container
-  console.log('--- 2. Dependency Injection Container (IoC Bootstrapping) ---');
-  const container = new Container();
-
-  // Register AIGeneratorPort -> OpenAIAdapter Singleton
-  container.registerSingleton<AIGeneratorPort>(AI_SERVICE_TOKEN, () => {
-    return new OpenAIAdapter({ apiKey: env.openaiApiKey, defaultModel: 'gpt-4o' });
+  runner.it('should verify true conditions', () => {
+    AssertionEngine.assertTrue('hello'.length === 5);
   });
 
-  // Register PaymentGatewayPort -> StripeAdapter Singleton
-  container.registerSingleton<PaymentGatewayPort>(PAYMENT_GATEWAY_TOKEN, () => {
-    return new StripeAdapter({ apiKey: env.stripeApiKey });
+  const suiteResult = await runner.run();
+  console.log(`Suite: ${suiteResult.name}`);
+  console.log(`Passed: ${suiteResult.passed}/${suiteResult.results.length} tests (Duration: ${suiteResult.totalDurationMs}ms)\n`);
+
+  // 2. Micro-Benchmark Runner & Test Reporter
+  console.log('--- 2. Micro-Benchmark & Test Reporter ---');
+  const benchResult = await TestReporter.benchmark('Crypto Hash Benchmark', () => {
+    Math.sin(Math.random() * 100);
+  }, 1000);
+
+  console.log(`Benchmark "${benchResult.name}": ${benchResult.opsPerSecond.toLocaleString()} ops/sec (1,000 iterations in ${benchResult.totalDurationMs}ms)`);
+  console.log('Automated JSON Test Report:');
+  console.log(TestReporter.generateJSONReport([suiteResult]));
+  console.log('');
+
+  // 3. AI Automation Workflow Engine
+  console.log('--- 3. AI Automation Workflow Engine ---');
+  const openAI = new OpenAIAdapter({ apiKey: 'sk-proj-demo-key-100' });
+  const aiWorkflow = new AIWorkflowEngine(openAI, {
+    name: 'CodeArchitectAgent',
+    roleDescription: 'Automates system architecture design & validation',
+    constraints: ['Enforce hexagonal ports & adapters', 'Zero un-guarded unknown types'],
   });
 
-  console.log(`Is AI Service Registered? -> ${container.isRegistered(AI_SERVICE_TOKEN)}`);
-  console.log(`Is Payment Gateway Registered? -> ${container.isRegistered(PAYMENT_GATEWAY_TOKEN)}\n`);
-
-  // 3. Resolve & Execute Ports via Auto-Wired Adapters
-  console.log('--- 3. Resolving & Executing External Adapters via Ports ---');
-  const aiService = container.resolve<AIGeneratorPort>(AI_SERVICE_TOKEN);
-  const paymentGateway = container.resolve<PaymentGatewayPort>(PAYMENT_GATEWAY_TOKEN);
-
-  // Execute AI Completion
-  const aiResult = await aiService.complete('Write a clean architecture recommendation');
-  console.log(`AI Completion Output: ${aiResult.text}`);
-  console.log(`Tokens Used: ${aiResult.tokensUsed}\n`);
-
-  // Execute Payment Charge
-  const chargeResult = await paymentGateway.charge({
-    amount: Money.fromDecimal(49.99, 'USD'),
-    customerId: 'cus_alice_88',
-    sourceToken: 'tok_visa',
+  // Register an automated tool into the AI workflow pipeline
+  aiWorkflow.registerTool({
+    name: 'CodeAuditTool',
+    description: 'Audits generated code for architecture violations',
+    execute: async (input: { promptOutput: string }) => {
+      console.log(`[CODE AUDIT TOOL] -> Inspecting AI output snippet length: ${input.promptOutput.length} chars`);
+      return { auditPassed: true, violationsFound: 0 };
+    },
   });
 
-  console.log(`Payment Status: ${chargeResult.status} ✅`);
-  console.log(`Charge ID: ${chargeResult.chargeId}`);
-  console.log(`Receipt URL: ${chargeResult.receiptUrl}\n`);
+  const workflowResult = await aiWorkflow.executeWorkflow(
+    'Automated System Architecture Workflow',
+    'Design hexagonal ports for domain: {{domainName}}',
+    { domainName: 'OrderProcessing' }
+  );
 
-  console.log('✅ Dependency Injection & External Adapters executed with 100% strict type safety!');
+  console.log(`Workflow Status: ${workflowResult.status} ✅`);
+  console.log(`Total Tokens Consumed: ${workflowResult.totalTokensUsed}`);
+  console.log(`Final AI Workflow Output: ${workflowResult.finalOutput}\n`);
+
+  console.log('✅ Automated Testing Engine & AI Automation Workflow Engine executed successfully!');
 }
 
-main().catch(err => console.error('Error running DI demo:', err));
+main().catch(err => console.error('Error executing demonstration:', err));
