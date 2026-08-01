@@ -68,3 +68,12 @@ export { AIWorkflowEngine } from './ai-automation/AIWorkflowEngine.js';
 export type { WorkflowTool, WorkflowStepResult, WorkflowExecutionSummary } from './ai-automation/AIWorkflowEngine.js';
 export { PromptTemplateEngine } from './ai-automation/PromptTemplateEngine.js';
 export type { SystemPersona } from './ai-automation/PromptTemplateEngine.js';
+
+// --- Plug-and-Play Domain Presets ---
+export { EcommercePreset } from './presets/EcommercePreset.js';
+export type { OrderStatus, OrderEvent, CartItem } from './presets/EcommercePreset.js';
+export { SaaSPreset } from './presets/SaaSPreset.js';
+export type { SaaSUserSession } from './presets/SaaSPreset.js';
+export { AIAgentPreset } from './presets/AIAgentPreset.js';
+export type { AIProvider } from './presets/AIAgentPreset.js';
+export { ApiServerPreset } from './presets/ApiServerPreset.js';

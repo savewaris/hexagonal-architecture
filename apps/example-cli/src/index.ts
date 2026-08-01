@@ -1,73 +1,48 @@
 import {
-  TestSuiteRunner,
-  AssertionEngine,
-  MockFactory,
-  TestReporter,
-  OpenAIAdapter,
-  AIWorkflowEngine,
-  PromptTemplateEngine,
+  EcommercePreset,
+  SaaSPreset,
+  AIAgentPreset,
+  ApiServerPreset,
+  Money,
 } from '@starter/core';
 
 async function main() {
-  console.log('🚀 Demonstrating Automated Testing Engine & AI Automation Workflow Engine...\n');
+  console.log('🚀 Demonstrating 4 Plug-and-Play Domain Presets...\n');
 
-  // 1. Pure Test Suite Runner & Assertions Demonstration
-  console.log('--- 1. Pure Test Suite Runner & Assertions Engine ---');
-  const runner = new TestSuiteRunner('Core Cryptography & Math Suite');
+  // 1. E-Commerce Preset
+  console.log('--- 1. E-Commerce Domain Preset ---');
+  const ecommerce = new EcommercePreset('sk_live_stripe_key_99');
+  const cartItems = [
+    { productId: 'p100', title: 'Mechanical Keyboard', unitPrice: Money.fromDecimal(89.99, 'USD'), quantity: 1 },
+    { productId: 'p200', title: 'Ergonomic Mouse', unitPrice: Money.fromDecimal(39.99, 'USD'), quantity: 1 },
+  ];
+  const order = await ecommerce.processOrderPayment('ord_8899', 'customer_id_77', cartItems);
+  console.log(`Order ID: ${order.orderId}`);
+  console.log(`Order Status: ${order.orderStatus} ✅`);
+  console.log(`Total Paid: ${order.chargeResult.amount.format()} (Charge ID: ${order.chargeResult.chargeId})\n`);
 
-  runner.it('should verify equal numbers', () => {
-    AssertionEngine.assertEqual(100, 100);
-  });
+  // 2. SaaS Platform Preset
+  console.log('--- 2. SaaS Platform Domain Preset ---');
+  const saas = new SaaSPreset('saas_master_jwt_secret_key');
+  const session = saas.registerUserSession('user_101', 'acme_corp', 'org_admin');
+  console.log(`User ID: ${session.userId} | Tenant: ${session.tenantId}`);
+  console.log(`Role: ${session.role} | Can access billing? -> ${saas.canUserPerformAction(session, 'billing:manage')}\n`);
 
-  runner.it('should verify true conditions', () => {
-    AssertionEngine.assertTrue('hello'.length === 5);
-  });
+  // 3. AI Agent Preset
+  console.log('--- 3. AI Agent Workflow Domain Preset ---');
+  const aiAgent = new AIAgentPreset('openai', 'sk-demo-key');
+  const aiOutput = await aiAgent.runResilientAgentTask('Recommend architecture for global payment processor');
+  console.log(`Resilient AI Agent Output: ${aiOutput}\n`);
 
-  const suiteResult = await runner.run();
-  console.log(`Suite: ${suiteResult.name}`);
-  console.log(`Passed: ${suiteResult.passed}/${suiteResult.results.length} tests (Duration: ${suiteResult.totalDurationMs}ms)\n`);
+  // 4. API Server Preset
+  console.log('--- 4. REST API Server Domain Preset ---');
+  const apiServer = new ApiServerPreset({ NODE_ENV: 'development', PORT: '8080', DB_NAME: 'saas_main_db' });
+  await apiServer.bootstrap();
+  const apiResponse = apiServer.formatEndpointSuccess({ status: 'HEALTHY', activePresets: 4 });
+  console.log('API Endpoint Response Envelope:', JSON.stringify(apiResponse, null, 2));
+  await apiServer.shutdown();
 
-  // 2. Micro-Benchmark Runner & Test Reporter
-  console.log('--- 2. Micro-Benchmark & Test Reporter ---');
-  const benchResult = await TestReporter.benchmark('Crypto Hash Benchmark', () => {
-    Math.sin(Math.random() * 100);
-  }, 1000);
-
-  console.log(`Benchmark "${benchResult.name}": ${benchResult.opsPerSecond.toLocaleString()} ops/sec (1,000 iterations in ${benchResult.totalDurationMs}ms)`);
-  console.log('Automated JSON Test Report:');
-  console.log(TestReporter.generateJSONReport([suiteResult]));
-  console.log('');
-
-  // 3. AI Automation Workflow Engine
-  console.log('--- 3. AI Automation Workflow Engine ---');
-  const openAI = new OpenAIAdapter({ apiKey: 'sk-proj-demo-key-100' });
-  const aiWorkflow = new AIWorkflowEngine(openAI, {
-    name: 'CodeArchitectAgent',
-    roleDescription: 'Automates system architecture design & validation',
-    constraints: ['Enforce hexagonal ports & adapters', 'Zero un-guarded unknown types'],
-  });
-
-  // Register an automated tool into the AI workflow pipeline
-  aiWorkflow.registerTool({
-    name: 'CodeAuditTool',
-    description: 'Audits generated code for architecture violations',
-    execute: async (input: { promptOutput: string }) => {
-      console.log(`[CODE AUDIT TOOL] -> Inspecting AI output snippet length: ${input.promptOutput.length} chars`);
-      return { auditPassed: true, violationsFound: 0 };
-    },
-  });
-
-  const workflowResult = await aiWorkflow.executeWorkflow(
-    'Automated System Architecture Workflow',
-    'Design hexagonal ports for domain: {{domainName}}',
-    { domainName: 'OrderProcessing' }
-  );
-
-  console.log(`Workflow Status: ${workflowResult.status} ✅`);
-  console.log(`Total Tokens Consumed: ${workflowResult.totalTokensUsed}`);
-  console.log(`Final AI Workflow Output: ${workflowResult.finalOutput}\n`);
-
-  console.log('✅ Automated Testing Engine & AI Automation Workflow Engine executed successfully!');
+  console.log('\n✅ All 4 Plug-and-Play Domain Presets executed successfully!');
 }
 
-main().catch(err => console.error('Error executing demonstration:', err));
+main().catch(err => console.error('Error running domain presets demo:', err));
