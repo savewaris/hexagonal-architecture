@@ -24,6 +24,10 @@ export { ApiResponse } from './api/ApiResponse.js';
 export type { ApiSuccessResponse, ApiErrorResponse, ApiResponseEnvelope } from './api/ApiResponse.js';
 export { Logger } from './logging/Logger.js';
 export type { LogLevel, LogEntry } from './logging/Logger.js';
+export { SecurityHeaders } from './security/SecurityHeaders.js';
+export type { SecurityHeadersConfig } from './security/SecurityHeaders.js';
+export { HealthCheckEngine } from './health/HealthCheckEngine.js';
+export type { HealthCheckProbe, HealthCheckReport } from './health/HealthCheckEngine.js';
 
 // --- Advanced First-Principles Core Engines ---
 export { CryptoEngine } from './crypto/CryptoEngine.js';
@@ -36,6 +40,12 @@ export { QueryFilter } from './filter/QueryFilter.js';
 export type { FilterOperator, FilterRule } from './filter/QueryFilter.js';
 export { DateTimeEngine } from './datetime/DateTimeEngine.js';
 
+// --- Pure RAG (Retrieval-Augmented Generation) Engine ---
+export type { VectorStorePort, VectorDocument, VectorSearchResult } from './rag/VectorStorePort.js';
+export { InMemoryVectorStore } from './rag/InMemoryVectorStore.js';
+export { RAGEngine } from './rag/RAGEngine.js';
+export type { RAGQueryOptions, RAGResponse } from './rag/RAGEngine.js';
+
 // --- Dependency Injection Container & Pure Schema Engine ---
 export { Container, Lifetime } from './di/Container.js';
 export type { Token, Factory } from './di/Container.js';
@@ -45,6 +55,7 @@ export type { ValidationError, ParseResult } from './schema/Schema.js';
 // --- Output Ports (Contracts) ---
 export type { AIGeneratorPort, AICompletionOptions, AICompletionResult } from './ports/AIGeneratorPort.js';
 export type { PaymentGatewayPort, ChargeOptions, ChargeResult, RefundOptions, RefundResult } from './ports/PaymentGatewayPort.js';
+export type { SocialPlatformPort, PostContentOptions, PostResult, EngagementStats } from './social/SocialPlatformPort.js';
 
 // --- External Service Concrete Adapters ---
 export { OpenAIAdapter } from './adapters/ai/OpenAIAdapter.js';
@@ -53,6 +64,8 @@ export { GeminiAdapter } from './adapters/ai/GeminiAdapter.js';
 export type { GeminiAdapterConfig } from './adapters/ai/GeminiAdapter.js';
 export { StripeAdapter } from './adapters/payment/StripeAdapter.js';
 export type { StripeAdapterConfig } from './adapters/payment/StripeAdapter.js';
+export { FacebookAdapter } from './social/FacebookAdapter.js';
+export type { FacebookAdapterConfig } from './social/FacebookAdapter.js';
 
 // --- Automated Testing Engine ---
 export { AssertionEngine, AssertionError } from './testing/AssertionEngine.js';
@@ -77,3 +90,4 @@ export type { SaaSUserSession } from './presets/SaaSPreset.js';
 export { AIAgentPreset } from './presets/AIAgentPreset.js';
 export type { AIProvider } from './presets/AIAgentPreset.js';
 export { ApiServerPreset } from './presets/ApiServerPreset.js';
+export { SocialAutomationPreset } from './presets/SocialAutomationPreset.js';

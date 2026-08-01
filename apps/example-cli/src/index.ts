@@ -1,48 +1,58 @@
 import {
-  EcommercePreset,
-  SaaSPreset,
-  AIAgentPreset,
-  ApiServerPreset,
-  Money,
+  InMemoryVectorStore,
+  RAGEngine,
+  OpenAIAdapter,
+  SocialAutomationPreset,
+  SecurityHeaders,
+  HealthCheckEngine,
 } from '@starter/core';
 
 async function main() {
-  console.log('🚀 Demonstrating 4 Plug-and-Play Domain Presets...\n');
+  console.log('🚀 Demonstrating RAG Engine & Facebook Page Automation Preset...\n');
 
-  // 1. E-Commerce Preset
-  console.log('--- 1. E-Commerce Domain Preset ---');
-  const ecommerce = new EcommercePreset('sk_live_stripe_key_99');
-  const cartItems = [
-    { productId: 'p100', title: 'Mechanical Keyboard', unitPrice: Money.fromDecimal(89.99, 'USD'), quantity: 1 },
-    { productId: 'p200', title: 'Ergonomic Mouse', unitPrice: Money.fromDecimal(39.99, 'USD'), quantity: 1 },
-  ];
-  const order = await ecommerce.processOrderPayment('ord_8899', 'customer_id_77', cartItems);
-  console.log(`Order ID: ${order.orderId}`);
-  console.log(`Order Status: ${order.orderStatus} ✅`);
-  console.log(`Total Paid: ${order.chargeResult.amount.format()} (Charge ID: ${order.chargeResult.chargeId})\n`);
+  // 1. Pure RAG Engine (Cosine Similarity Vector Search)
+  console.log('--- 1. Pure RAG (Retrieval-Augmented Generation) Engine ---');
+  const vectorDb = new InMemoryVectorStore();
+  const openAI = new OpenAIAdapter({ apiKey: 'sk-demo-key' });
+  const ragEngine = new RAGEngine(vectorDb, openAI);
 
-  // 2. SaaS Platform Preset
-  console.log('--- 2. SaaS Platform Domain Preset ---');
-  const saas = new SaaSPreset('saas_master_jwt_secret_key');
-  const session = saas.registerUserSession('user_101', 'acme_corp', 'org_admin');
-  console.log(`User ID: ${session.userId} | Tenant: ${session.tenantId}`);
-  console.log(`Role: ${session.role} | Can access billing? -> ${saas.canUserPerformAction(session, 'billing:manage')}\n`);
+  await ragEngine.indexDocument(
+    'kb_doc_101',
+    'Hexagonal Architecture isolates business domain logic inside pure zero-dependency TypeScript modules.',
+    [0.15, 0.45, 0.85]
+  );
 
-  // 3. AI Agent Preset
-  console.log('--- 3. AI Agent Workflow Domain Preset ---');
-  const aiAgent = new AIAgentPreset('openai', 'sk-demo-key');
-  const aiOutput = await aiAgent.runResilientAgentTask('Recommend architecture for global payment processor');
-  console.log(`Resilient AI Agent Output: ${aiOutput}\n`);
+  const ragResult = await ragEngine.query('How does Hexagonal Architecture isolate logic?', [0.15, 0.45, 0.85]);
+  console.log(`RAG Retrieved Contexts Count: ${ragResult.retrievedContexts.length}`);
+  console.log(`RAG Context Content: "${ragResult.retrievedContexts[0]}"`);
+  console.log(`RAG AI Answer: "${ragResult.answer}"\n`);
 
-  // 4. API Server Preset
-  console.log('--- 4. REST API Server Domain Preset ---');
-  const apiServer = new ApiServerPreset({ NODE_ENV: 'development', PORT: '8080', DB_NAME: 'saas_main_db' });
-  await apiServer.bootstrap();
-  const apiResponse = apiServer.formatEndpointSuccess({ status: 'HEALTHY', activePresets: 4 });
-  console.log('API Endpoint Response Envelope:', JSON.stringify(apiResponse, null, 2));
-  await apiServer.shutdown();
+  // 2. Facebook Page & Post Automation Preset
+  console.log('--- 2. Facebook Page Automation Preset ---');
+  const fbPreset = new SocialAutomationPreset('EAAX_fb_page_token_demo', 'page_my_company');
+  const fbPostResult = await fbPreset.publishNow(
+    'page_my_company',
+    '🚀 Exciting News! We just launched our new Pure Logic Core Engine!',
+    'https://example.com/announcement'
+  );
 
-  console.log('\n✅ All 4 Plug-and-Play Domain Presets executed successfully!');
+  console.log(`Published Facebook Post ID: ${fbPostResult.postId}`);
+  console.log(`Permalink URL: ${fbPostResult.permalinkUrl}`);
+
+  const engagement = await fbPreset.getPostAnalytics(fbPostResult.postId);
+  console.log(`Post Engagement Stats: ${engagement.likes} Likes, ${engagement.shares} Shares, ${engagement.reach} Reach\n`);
+
+  // 3. Security Headers & Health Check Probes
+  console.log('--- 3. OWASP Security Headers & Health Check Engine ---');
+  const headers = SecurityHeaders.generateHeaders({ allowedCorsOrigins: ['https://my-frontend-app.com'] });
+  console.log(`Generated Security Header 'X-Content-Type-Options': ${headers['X-Content-Type-Options']}`);
+
+  const healthEngine = new HealthCheckEngine();
+  healthEngine.registerProbe({ name: 'vector_db', check: async () => ({ healthy: true }) });
+  const healthReport = await healthEngine.evaluateHealth();
+  console.log(`Container Health Probe Status: ${healthReport.status} ✅ (Uptime: ${healthReport.uptimeSeconds}s)`);
+
+  console.log('\n✅ RAG Engine & Facebook Automation Preset executed successfully!');
 }
 
-main().catch(err => console.error('Error running domain presets demo:', err));
+main().catch(err => console.error('Error running demonstration:', err));
