@@ -1,75 +1,79 @@
 import {
-  RBACEvaluator,
-  TokenBucket,
-  StateMachine,
-  Money,
-  CircuitBreaker,
-  LRUCache,
-  EventBus,
+  EnvConfigLoader,
+  DatabaseManager,
+  AuthEngine,
+  ApiResponse,
+  Logger,
 } from '@starter/core';
 
 async function main() {
-  console.log('🚀 Demonstrating 5 First-Principles Pure Core Engines...\n');
+  console.log('🚀 Demonstrating Universal Immutable Infrastructure & Workflow Engines...\n');
 
-  // 1. Auth & Security Engine
-  console.log('--- 1. RBAC & Rate Limiter Engine ---');
-  const rbac = new RBACEvaluator([
-    { name: 'editor', permissions: ['articles:create', 'articles:edit'] },
-    { name: 'admin', permissions: ['*'], inherits: ['editor'] },
-  ]);
-  const user = { id: 'user_42', roles: ['admin'] };
-  console.log(`User holds 'articles:edit' permission? -> ${rbac.hasPermission(user, 'articles:edit')}`);
-
-  const limiter = new TokenBucket({ capacity: 3, refillRate: 1 });
-  console.log(`Consuming rate limit token 1/3: ${limiter.tryConsume(1)}`);
-  console.log(`Consuming rate limit token 2/3: ${limiter.tryConsume(1)}`);
-  console.log(`Consuming rate limit token 3/3: ${limiter.tryConsume(1)}\n`);
-
-  // 2. State Machine Engine
-  console.log('--- 2. Finite State Machine (FSM) Engine ---');
-  type OrderState = 'PENDING' | 'PAID' | 'SHIPPED';
-  type OrderEvent = 'PAY' | 'SHIP';
-
-  const orderFsm = new StateMachine<OrderState, OrderEvent>({
-    initial: 'PENDING',
-    transitions: [
-      { from: 'PENDING', event: 'PAY', to: 'PAID' },
-      { from: 'PAID', event: 'SHIP', to: 'SHIPPED' },
-    ],
-    onTransition: (evt, from, to) => console.log(`Order Transition: [${from}] --(${evt})--> [${to}]`),
+  // 1. Load Type-Safe Environment Config
+  console.log('--- 1. Environment Config Engine ---');
+  const envConfig = EnvConfigLoader.load({
+    NODE_ENV: 'development',
+    PORT: '4000',
+    DB_HOST: '127.0.0.1',
+    DB_PORT: '5432',
+    DB_NAME: 'my_production_app_db',
+    JWT_SECRET: 'my_ultra_secure_jwt_secret_key_2026',
   });
-  orderFsm.send('PAY');
-  orderFsm.send('SHIP');
-  console.log(`Final Order State: ${orderFsm.getState()}\n`);
+  console.log(`Environment: ${envConfig.nodeEnv}`);
+  console.log(`Configured Database Name: ${envConfig.databaseName}`);
+  console.log(`Configured Port: ${envConfig.port}\n`);
 
-  // 3. Financial Math Engine
-  console.log('--- 3. Financial Math Engine (Zero-Float Precision) ---');
-  const item1 = Money.fromDecimal(19.99, 'USD');
-  const item2 = Money.fromDecimal(5.01, 'USD');
-  const total = item1.add(item2);
-  console.log(`${item1.format()} + ${item2.format()} = ${total.format()} (Cents: ${total.getCents()})\n`);
+  // 2. Structured Logger with Correlation ID Tracking
+  console.log('--- 2. Structured Logger & Correlation ID Engine ---');
+  Logger.runWithCorrelationId('req_tx_998877', () => {
+    Logger.info('Incoming user authentication request received.', { endpoint: '/api/v1/auth/login' });
+  });
+  console.log('');
 
-  // 4. Resilient Network Engine
-  console.log('--- 4. Resilient Circuit Breaker Engine ---');
-  const circuit = new CircuitBreaker({ failureThreshold: 3, resetTimeoutMs: 5000 });
-  console.log(`Circuit Breaker State: ${circuit.getState()}`);
-  const result = await circuit.execute(async () => 'External Service Response Success!');
-  console.log(`Result: ${result}\n`);
+  // 3. Database Connection Manager
+  console.log('--- 3. Database Connection Pool & Transaction Manager ---');
+  const db = new DatabaseManager({
+    host: envConfig.databaseHost,
+    port: envConfig.databasePort,
+    databaseName: envConfig.databaseName,
+  });
+  await db.connect();
+  const health = await db.checkHealth();
+  console.log(`Database Health Check: ${health.isConnected ? 'ONLINE ✅' : 'OFFLINE ❌'} (DB: ${health.databaseName})`);
 
-  // 5. Cache & Event Bus Engine
-  console.log('--- 5. O(1) LRU Cache & Event Bus Engine ---');
-  const cache = new LRUCache<string, string>(2);
-  cache.set('session_1', 'User_Alice');
-  cache.set('session_2', 'User_Bob');
-  console.log(`Cache Get 'session_1': ${cache.get('session_1')}`);
+  const dbTxResult = await db.withTransaction(async () => {
+    return 'User record updated successfully within transaction boundary.';
+  });
+  console.log(`Transaction Output: "${dbTxResult}"\n`);
 
-  const bus = new EventBus<{ 'user:login': { username: string } }>();
-  bus.subscribe('user:login', data => console.log(`[EVENT SUB] -> User logged in: ${data.username}`));
-  await bus.publish('user:login', { username: 'Alice' });
+  // 4. Auth & Token Engine
+  console.log('--- 4. Authentication & JWT Rotation Engine ---');
+  const auth = new AuthEngine({ jwtSecret: envConfig.jwtSecret });
+  const hashedPassword = auth.hashPassword('SuperUserSecretPass123!');
+  console.log(`PBKDF2 Password Salt & Hash: ${hashedPassword.substring(0, 30)}...`);
 
-  console.log('\n✅ All 5 First-Principles Pure Core Engines executed successfully!');
+  const isValidPass = auth.verifyPassword('SuperUserSecretPass123!', hashedPassword);
+  console.log(`Password Verification Result: ${isValidPass ? 'VALID ✅' : 'INVALID ❌'}`);
+
+  const tokens = auth.generateTokens('user_id_101', 'admin');
+  console.log(`Generated Access Token: ${tokens.accessToken.substring(0, 35)}...`);
+  
+  const payload = auth.verifyToken(tokens.accessToken);
+  console.log(`Verified Token Claims: User ID = ${payload.userId}, Role = ${payload.role}\n`);
+
+  // 5. Standardized API Response Envelope
+  console.log('--- 5. Standardized API Response Envelope ---');
+  const responseData = ApiResponse.success({
+    user: { id: payload.userId, role: payload.role },
+    tokens,
+  });
+  console.log('API Response Envelope JSON Structure:');
+  console.log(JSON.stringify(responseData, null, 2));
+
+  await db.disconnect();
+  console.log('\n✅ Universal Immutable Infrastructure Engines executed successfully!');
 }
 
 main().catch(err => {
-  console.error('❌ Error executing example application:', err);
+  console.error('❌ Error executing infrastructure engine demonstration:', err);
 });
