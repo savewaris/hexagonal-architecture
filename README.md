@@ -1,151 +1,60 @@
-# Pure Logic Clean Architecture & Hexagonal Monorepo Starter Template
+# First-Principles Pure Core Engines Library
 
-A battle-tested TypeScript Monorepo boilerplate implementing **Hexagonal Architecture (Ports & Adapters)** and **Clean Architecture**.
-
-It enforces a strict separation between **80% Pure Core Domain Logic** and **20% Project-Specific Adapters** (Databases, Web UIs, REST APIs, CLI tools).
-
----
-
-## 🏛️ Architecture Overview
+A zero-dependency, production-grade collection of **First-Principles Computational & Business Rule Engines** implemented in pure TypeScript.
 
 ```text
-                                 +-----------------------------------+
-                                 |         20% ADAPTER LAYER         |
-                                 | (Web UI / HTTP API / CLI / DBs)  |
-                                 +-----------------+-----------------+
-                                                   |
-                                                   v  (Implements)
-+--------------------------------------------------+--------------------------------------------------+
-|                                         80% PURE CORE LOGIC                                         |
-|                                                                                                     |
-|   +--------------------------+    Uses     +------------------------+    Invocations               |
-|   |    Application Use Cases | ----------> |       Output Ports     | <--------------+             |
-|   |  (CreateTask, Complete)  |             |  (Interfaces/Contracts)|                |             |
-|   +------------+-------------+             +------------------------+                |             |
-|                |                                                                     |             |
-|                | Operates On                                                         |             |
-|                v                                                                     |             |
-|   +--------------------------+                                                       |             |
-|   |      Domain Entities     |                                                       |             |
-|   |   (Task, Value Objects)  |                                                       |             |
-|   +--------------------------+                                                       |             |
-+-----------------------------------------------------------------------------------------------------+
-```
-
-### Key Principles:
-1. **Zero External Runtime Dependencies in Core**: `@starter/core` contains pure TypeScript logic. No database ORMs, no HTTP frameworks, no UI libraries.
-2. **Ports (Interfaces)**: Core logic defines output ports (interfaces like `TaskRepositoryPort`, `NotificationPort`) that define *what* it needs without caring *how* it's done.
-3. **Adapters**: External projects implement these ports (e.g., `InMemoryTaskRepository`, `PostgresTaskRepository`, `SendGridNotificationService`).
-
----
-
-## 📁 Repository Structure
-
-```text
-hexagonal-clean-architecture-template/
-├── packages/
-│   ├── core/                      <-- 80% PURE DOMAIN LOGIC
-│   │   ├── src/
-│   │   │   ├── domain/            <-- Entities, Value Objects, Domain Rules
-│   │   │   ├── use-cases/         <-- Application Interactors
-│   │   │   └── ports/             <-- TypeScript Interfaces (Contracts)
-│   │   └── tests/                 <-- Vitest Unit Tests (Pure Logic)
-│   └── adapters-in-memory/       <-- 20% IN-MEMORY ADAPTERS (Mock DB & Services)
-│       └── src/
-├── apps/
-│   └── example-cli/               <-- Sample Runner Application
-├── pnpm-workspace.yaml
-├── package.json
-└── README.md
+                                +-----------------------------------+
+                                |     5 FIRST-PRINCIPLES ENGINES    |
+                                +-----------------+-----------------+
+                                                  |
+       +-----------------------+------------------+------------------+-----------------------+
+       |                       |                     |               |                       |
+       v                       v                     v               v                       v
++--------------+     +-------------------+     +------------+  +-------------------+     +--------------+
+| Auth & RBAC  |     | Finite State      |     | Financial  |  | Circuit Breaker   |     | LRU Cache    |
+| & RateLimit  |     | Machine (FSM)     |     | Math Engine|  | Resilience Engine |     | & Event Bus  |
++--------------+     +-------------------+     +------------+  +-------------------+     +--------------+
 ```
 
 ---
 
-## 🚀 Getting Started
+## 📦 The 5 Core Engines Included
 
-### Prerequisites
-- Node.js >= 18.0.0
-- `pnpm` installed globally: `npm install -g pnpm`
+### 1. 🔐 Auth & Security Engine (`security/`)
+- **`RBACEvaluator`**: Role-Based & Attribute-Based Access Control matrix supporting wildcard permission resolution (`users:*`, `reports:read`).
+- **`TokenBucket`**: Pure Token Bucket rate limiting algorithm for API request throttling.
 
-### Installation & Run
+### 2. ⚙️ State Machine Engine (`workflow/`)
+- **`StateMachine`**: Finite State Machine (FSM) enforcing valid state transitions, transition guards, and transition lifecycle callbacks.
 
-1. **Install Dependencies**:
-   ```bash
-   pnpm install
-   ```
+### 3. 💰 Financial & Math Engine (`financial/`)
+- **`Money`**: Zero-float precision Money Value Object storing amounts in integer cents (`BigInt`) to eliminate IEEE-754 floating-point precision bugs (e.g. `$0.1 + $0.2 = $0.3`).
 
-2. **Build All Workspace Packages**:
-   ```bash
-   pnpm build
-   ```
+### 4. 🛡️ Resilient Network Engine (`resilience/`)
+- **`CircuitBreaker`**: Circuit Breaker pattern (`CLOSED`, `OPEN`, `HALF_OPEN`) to prevent cascading downstream system outages.
 
-3. **Run Unit Tests (Vitest)**:
-   ```bash
-   pnpm test
-   ```
-
-4. **Run Example Application**:
-   ```bash
-   pnpm --filter example-cli start
-   ```
+### 5. ⚡ Cache & Pub-Sub Engine (`storage/`)
+- **`LRUCache`**: O(1) Least-Recently-Used cache with TTL (Time-To-Live) expiration.
+- **`EventBus`**: Strongly-typed Event Emitter / Pub-Sub domain event bus.
 
 ---
 
-## 💡 How to Add a New Project Adapter
+## 🚀 Usage & Testing
 
-When building a new project (e.g. a PostgreSQL backend, a React Web App, or a Mobile App):
-
-1. **Create a new adapter package** in `packages/adapters-postgres` or `apps/web-app`.
-2. **Import `@starter/core` ports**:
-   ```typescript
-   import { TaskRepositoryPort, Task, TaskId } from '@starter/core';
-
-   export class PostgresTaskRepository implements TaskRepositoryPort {
-     async save(task: Task): Promise<void> {
-       // Save to PostgreSQL database table...
-     }
-     // Implement remaining interface methods...
-   }
-   ```
-3. **Inject the adapter into the Core Use Case**:
-   ```typescript
-   const postgresRepo = new PostgresTaskRepository();
-   const createTaskUseCase = new CreateTaskUseCase(postgresRepo);
-   ```
-
----
-
-## 🛡️ Cloud Backup & Disaster Recovery Guide
-
-To ensure your codebase is **100% safe if your computer breaks or dies**, follow these steps to back up your repository to GitHub:
-
-### 1. Initialize Git & First Commit
 ```bash
-git init
-git add .
-git commit -m "Initial commit: Pure Logic Clean Architecture Monorepo Template"
+# Build TypeScript Packages
+pnpm build
+
+# Run Unit Tests (Vitest)
+pnpm test
+
+# Run Example CLI Engine Demonstration
+pnpm --filter example-cli start
 ```
 
-### 2. Connect to a Private GitHub Repository
-1. Go to [GitHub.com](https://github.com) and click **New Repository**.
-2. Name it `my-pure-logic-monorepo` and set visibility to **Private**.
-3. Do NOT initialize with a README (one already exists).
-4. Run in your terminal:
-   ```bash
-   git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/my-pure-logic-monorepo.git
-   git branch -M main
-   git push -u origin main
-   ```
+---
 
-### 3. Restoring on a New Computer (If your computer dies)
-If your old computer breaks:
-1. Turn on your new computer.
-2. Install Node.js and Git.
-3. Clone your GitHub repository:
-   ```bash
-   git clone https://github.com/<YOUR_GITHUB_USERNAME>/my-pure-logic-monorepo.git
-   cd my-pure-logic-monorepo
-   pnpm install
-   pnpm test
-   ```
-4. All your pure logic, adapters, and projects will be instantly restored 100%!
+## 🔗 GitHub Synchronization
+
+- Repository: [`https://github.com/savewaris/hexagonal-architecture.git`](https://github.com/savewaris/hexagonal-architecture.git)
+- Rule Configuration: Saved in Agent Second Brain (`C:\Users\WIN 11 PRO\.agent-second-brain\.agentrules\hexagonal-template.md`).

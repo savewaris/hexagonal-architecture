@@ -1,48 +1,75 @@
-import { CreateTaskUseCase, CompleteTaskUseCase } from '@starter/core';
-import { InMemoryTaskRepository, InMemoryNotificationService } from '@starter/adapters-in-memory';
+import {
+  RBACEvaluator,
+  TokenBucket,
+  StateMachine,
+  Money,
+  CircuitBreaker,
+  LRUCache,
+  EventBus,
+} from '@starter/core';
 
 async function main() {
-  console.log('🚀 Starting Hexagonal Architecture Clean Core Example Application...\n');
+  console.log('🚀 Demonstrating 5 First-Principles Pure Core Engines...\n');
 
-  // 1. Instantiate 20% Adapters (In-Memory Repository & Notification Service)
-  const taskRepository = new InMemoryTaskRepository();
-  const notificationService = new InMemoryNotificationService();
+  // 1. Auth & Security Engine
+  console.log('--- 1. RBAC & Rate Limiter Engine ---');
+  const rbac = new RBACEvaluator([
+    { name: 'editor', permissions: ['articles:create', 'articles:edit'] },
+    { name: 'admin', permissions: ['*'], inherits: ['editor'] },
+  ]);
+  const user = { id: 'user_42', roles: ['admin'] };
+  console.log(`User holds 'articles:edit' permission? -> ${rbac.hasPermission(user, 'articles:edit')}`);
 
-  // 2. Instantiate 80% Pure Core Use Cases, injecting the Adapter ports
-  const createTaskUseCase = new CreateTaskUseCase(taskRepository, notificationService);
-  const completeTaskUseCase = new CompleteTaskUseCase(taskRepository, notificationService);
+  const limiter = new TokenBucket({ capacity: 3, refillRate: 1 });
+  console.log(`Consuming rate limit token 1/3: ${limiter.tryConsume(1)}`);
+  console.log(`Consuming rate limit token 2/3: ${limiter.tryConsume(1)}`);
+  console.log(`Consuming rate limit token 3/3: ${limiter.tryConsume(1)}\n`);
 
-  // 3. Execute Create Task Use Case
-  console.log('--- Step 1: Executing CreateTaskUseCase ---');
-  const task1 = await createTaskUseCase.execute({
-    title: 'Build Pure Domain Logic Package',
-    description: 'Keep 80% business logic isolated inside pure TS modules.',
-    notifyUser: 'developer@company.com',
+  // 2. State Machine Engine
+  console.log('--- 2. Finite State Machine (FSM) Engine ---');
+  type OrderState = 'PENDING' | 'PAID' | 'SHIPPED';
+  type OrderEvent = 'PAY' | 'SHIP';
+
+  const orderFsm = new StateMachine<OrderState, OrderEvent>({
+    initial: 'PENDING',
+    transitions: [
+      { from: 'PENDING', event: 'PAY', to: 'PAID' },
+      { from: 'PAID', event: 'SHIP', to: 'SHIPPED' },
+    ],
+    onTransition: (evt, from, to) => console.log(`Order Transition: [${from}] --(${evt})--> [${to}]`),
   });
-  console.log(`Created Task ID: ${task1.getId().getValue()}`);
-  console.log(`Task Title: ${task1.getTitle()}`);
-  console.log(`Task Status: ${task1.getStatus()}\n`);
+  orderFsm.send('PAY');
+  orderFsm.send('SHIP');
+  console.log(`Final Order State: ${orderFsm.getState()}\n`);
 
-  // 4. Execute Complete Task Use Case
-  console.log('--- Step 2: Executing CompleteTaskUseCase ---');
-  const completedTask = await completeTaskUseCase.execute(
-    task1.getId().getValue(),
-    'developer@company.com'
-  );
-  console.log(`Updated Task Status: ${completedTask.getStatus()}\n`);
+  // 3. Financial Math Engine
+  console.log('--- 3. Financial Math Engine (Zero-Float Precision) ---');
+  const item1 = Money.fromDecimal(19.99, 'USD');
+  const item2 = Money.fromDecimal(5.01, 'USD');
+  const total = item1.add(item2);
+  console.log(`${item1.format()} + ${item2.format()} = ${total.format()} (Cents: ${total.getCents()})\n`);
 
-  // 5. Inspect All Tasks in Repository
-  console.log('--- Step 3: Fetching All Saved Tasks from Repository Adapter ---');
-  const allTasks = await taskRepository.findAll();
-  console.log(`Total Saved Tasks: ${allTasks.length}`);
-  allTasks.forEach(t => {
-    console.log(`- [${t.getStatus()}] ${t.getTitle()} (ID: ${t.getId().getValue()})`);
-  });
+  // 4. Resilient Network Engine
+  console.log('--- 4. Resilient Circuit Breaker Engine ---');
+  const circuit = new CircuitBreaker({ failureThreshold: 3, resetTimeoutMs: 5000 });
+  console.log(`Circuit Breaker State: ${circuit.getState()}`);
+  const result = await circuit.execute(async () => 'External Service Response Success!');
+  console.log(`Result: ${result}\n`);
 
-  console.log('\n✅ Pure Domain Logic successfully executed and decoupled from external frameworks!');
+  // 5. Cache & Event Bus Engine
+  console.log('--- 5. O(1) LRU Cache & Event Bus Engine ---');
+  const cache = new LRUCache<string, string>(2);
+  cache.set('session_1', 'User_Alice');
+  cache.set('session_2', 'User_Bob');
+  console.log(`Cache Get 'session_1': ${cache.get('session_1')}`);
+
+  const bus = new EventBus<{ 'user:login': { username: string } }>();
+  bus.subscribe('user:login', data => console.log(`[EVENT SUB] -> User logged in: ${data.username}`));
+  await bus.publish('user:login', { username: 'Alice' });
+
+  console.log('\n✅ All 5 First-Principles Pure Core Engines executed successfully!');
 }
 
 main().catch(err => {
-  console.error('❌ Execution Error:', err);
-  process.exit(1);
+  console.error('❌ Error executing example application:', err);
 });
