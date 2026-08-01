@@ -16,15 +16,22 @@ export type { EventHandler } from './storage/EventBus.js';
 // --- Universal Immutable Infrastructure & Workflow Engines ---
 export { DatabaseManager } from './database/DatabaseManager.js';
 export type { DatabaseConfig, ConnectionHealth } from './database/DatabaseManager.js';
-
 export { AuthEngine } from './auth/AuthEngine.js';
 export type { AuthConfig, AuthTokens, TokenPayload } from './auth/AuthEngine.js';
-
 export { EnvConfigLoader } from './config/EnvConfigLoader.js';
 export type { AppEnvConfig } from './config/EnvConfigLoader.js';
-
 export { ApiResponse } from './api/ApiResponse.js';
 export type { ApiSuccessResponse, ApiErrorResponse, ApiResponseEnvelope } from './api/ApiResponse.js';
-
 export { Logger } from './logging/Logger.js';
 export type { LogLevel, LogEntry } from './logging/Logger.js';
+
+// --- Advanced First-Principles Core Engines ---
+export { CryptoEngine } from './crypto/CryptoEngine.js';
+export type { EncryptedPayload } from './crypto/CryptoEngine.js';
+export { JobQueue } from './queue/JobQueue.js';
+export type { Job, JobStatus, JobHandler } from './queue/JobQueue.js';
+export { Paginator } from './pagination/Paginator.js';
+export type { OffsetPaginationResult, CursorPaginationResult } from './pagination/Paginator.js';
+export { QueryFilter } from './filter/QueryFilter.js';
+export type { FilterOperator, FilterRule } from './filter/QueryFilter.js';
+export { DateTimeEngine } from './datetime/DateTimeEngine.js';
