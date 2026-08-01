@@ -35,3 +35,21 @@ export type { OffsetPaginationResult, CursorPaginationResult } from './paginatio
 export { QueryFilter } from './filter/QueryFilter.js';
 export type { FilterOperator, FilterRule } from './filter/QueryFilter.js';
 export { DateTimeEngine } from './datetime/DateTimeEngine.js';
+
+// --- Dependency Injection Container & Pure Schema Engine ---
+export { Container, Lifetime } from './di/Container.js';
+export type { Token, Factory } from './di/Container.js';
+export { Schema, BaseSchema, StringSchema, NumberSchema, ObjectSchema, SchemaError } from './schema/Schema.js';
+export type { ValidationError, ParseResult } from './schema/Schema.js';
+
+// --- Output Ports (Contracts) ---
+export type { AIGeneratorPort, AICompletionOptions, AICompletionResult } from './ports/AIGeneratorPort.js';
+export type { PaymentGatewayPort, ChargeOptions, ChargeResult, RefundOptions, RefundResult } from './ports/PaymentGatewayPort.js';
+
+// --- External Service Concrete Adapters ---
+export { OpenAIAdapter } from './adapters/ai/OpenAIAdapter.js';
+export type { OpenAIAdapterConfig } from './adapters/ai/OpenAIAdapter.js';
+export { GeminiAdapter } from './adapters/ai/GeminiAdapter.js';
+export type { GeminiAdapterConfig } from './adapters/ai/GeminiAdapter.js';
+export { StripeAdapter } from './adapters/payment/StripeAdapter.js';
+export type { StripeAdapterConfig } from './adapters/payment/StripeAdapter.js';
