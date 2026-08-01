@@ -56,6 +56,7 @@ export type { ValidationError, ParseResult } from './schema/Schema.js';
 export type { AIGeneratorPort, AICompletionOptions, AICompletionResult } from './ports/AIGeneratorPort.js';
 export type { PaymentGatewayPort, ChargeOptions, ChargeResult, RefundOptions, RefundResult } from './ports/PaymentGatewayPort.js';
 export type { SocialPlatformPort, PostContentOptions, PostResult, EngagementStats } from './social/SocialPlatformPort.js';
+export type { ObjectStoragePort, UploadFileOptions, UploadFileResult } from './ports/ObjectStoragePort.js';
 
 // --- External Service Concrete Adapters ---
 export { OpenAIAdapter } from './adapters/ai/OpenAIAdapter.js';
@@ -66,6 +67,16 @@ export { StripeAdapter } from './adapters/payment/StripeAdapter.js';
 export type { StripeAdapterConfig } from './adapters/payment/StripeAdapter.js';
 export { FacebookAdapter } from './social/FacebookAdapter.js';
 export type { FacebookAdapterConfig } from './social/FacebookAdapter.js';
+
+// --- Enterprise Cloud Scale Adapters ---
+export { PostgresPoolAdapter } from './adapters/database/PostgresPoolAdapter.js';
+export type { PostgresPoolConfig } from './adapters/database/PostgresPoolAdapter.js';
+export { PineconeVectorAdapter } from './adapters/vector/PineconeVectorAdapter.js';
+export type { PineconeAdapterConfig } from './adapters/vector/PineconeVectorAdapter.js';
+export { RedisQueueAdapter } from './adapters/queue/RedisQueueAdapter.js';
+export type { RedisQueueConfig } from './adapters/queue/RedisQueueAdapter.js';
+export { S3StorageAdapter } from './adapters/storage/S3StorageAdapter.js';
+export type { S3StorageAdapterConfig } from './adapters/storage/S3StorageAdapter.js';
 
 // --- Automated Testing Engine ---
 export { AssertionEngine, AssertionError } from './testing/AssertionEngine.js';
